@@ -1,153 +1,174 @@
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
+import {
+  clearAuthSession,
+  getStoredUser,
+  getUserRoleName,
+} from "../../utils/authSession";
 
-const MENU_ITEMS = [
-  {
-    id: "dashboard",
-    label: "Panel de control",
-    path: "/admin",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-      </svg>
-    ),
-  },
-  {
-    id: "rutas",
-    label: "Rutas",
-    path: "/admin/rutas",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-      </svg>
-    ),
-  },
-  {
-    id: "vehiculos",
-    label: "Vehículos",
-    path: "/admin/vehiculos",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h8m-8 4h8m-6 4h4M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
-  {
-    id: "empleados",
-    label: "Registro de Empleados",
-    path: "/admin/empleados",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-  },
-  {
-    id: "horarios",
-    label: "Horarios",
-    path: "/admin/horarios",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-  {
-    id: "objetos",
-    label: "Objetos perdidos",
-    path: "/admin/objetos-perdidos",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
-  {
-    id: "reportes",
-    label: "Reportes",
-    path: "/admin/reportes",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-  },
-  {
-    id: "configuracion",
-    label: "Configuración",
-    path: "/admin/configuracion",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-  },
+const NAV_ITEMS = [
+  { label: "Panel de control", to: "/admin", end: true },
+  { label: "Rutas", to: "/admin/rutas" },
+  { label: "Vehículos", to: "/admin/vehiculos" },
+  { label: "Registro de Empleados", to: "/admin/empleados" },
+  { label: "Horarios", to: "/admin/horarios" },
+  { label: "Objetos perdidos", to: "/admin/objetos-perdidos" },
+  { label: "Reportes", to: "/admin/reportes" },
+  { label: "Configuración", to: "/admin/configuracion" },
 ];
 
-export default function AdminSidebar({ activeItem = "dashboard", onSelect }) {
-  const navigate = useNavigate();
+export default function AdminSidebar() {
+  const [confirmLogout, setConfirmLogout] = useState(false);
+
+  // Leer datos del usuario conectado desde authSession.js
+  const user = getStoredUser() || {};
+  const email = user?.email || user?.Email || user?.correo || "admin@chapulgo.com";
+  const rawName =
+    user?.nombre ||
+    user?.Nombre ||
+    user?.name ||
+    (email ? email.split("@")[0] : "Admin");
+
+  const displayName =
+    rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase();
+  const initials = displayName.slice(0, 2).toUpperCase();
+  const roleName = getUserRoleName() || "SuperAdministrador";
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
+    clearAuthSession();
+    // Redirige a "/" (Login) limpiando el historial y reiniciando el estado en memoria
+    window.location.replace("/");
   };
 
   return (
-    <aside className="w-full md:w-64 bg-[#123254] text-white md:min-h-screen flex flex-col justify-between p-5 shrink-0 shadow-lg">
+    <aside className="flex min-h-screen w-64 flex-col justify-between bg-[#0d2544] text-white">
       <div>
-        {/* Logotipo e identidad */}
-        <div className="flex items-center gap-3 mb-8 px-2 pt-1">
-          <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-lg">
-            🚌
+        {/* Encabezado de marca */}
+        <div className="flex items-center gap-3 px-6 py-6">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-300 shadow-inner">
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8 7h8m-8 4h8m-6 4h4M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
           </div>
           <div>
-            <h2 className="text-lg font-extrabold tracking-wide uppercase leading-none">
+            <h1 className="text-base font-bold tracking-wide text-white">
               CHAPUL-GO
-            </h2>
-            <span className="text-[11px] text-slate-300">Gestión Operativa</span>
+            </h1>
+            <p className="text-xs text-slate-300">Gestión Operativa</p>
           </div>
         </div>
 
-        <p className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase px-3 mb-2.5">
-          ADMINISTRACIÓN
-        </p>
-
-        <nav className="space-y-1">
-          {MENU_ITEMS.map((item) => {
-            const isActive = activeItem === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => onSelect && onSelect(item)}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition ${
-                  isActive
-                    ? "bg-[#E8F1FA] text-[#123254] font-semibold shadow-sm"
-                    : "text-slate-200 hover:bg-white/10 font-normal"
-                }`}
+        {/* Navegación principal */}
+        <div className="px-4">
+          <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            Administración
+          </p>
+          <nav className="space-y-1">
+            {NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  `block rounded-xl px-3.5 py-2.5 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-slate-100 text-[#0d2544] shadow-sm"
+                      : "text-slate-200 hover:bg-white/10"
+                  }`
+                }
               >
-                <span className={isActive ? "text-[#123254]" : "text-slate-300"}>
-                  {item.icon}
-                </span>
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
       </div>
 
-      <div className="pt-4 mt-6 border-t border-white/10">
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-red-500/20 hover:text-red-200 transition"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span>Cerrar sesión</span>
-        </button>
+      {/* Perfil estilo Netflix + Cierre de sesión seguro */}
+      <div className="border-t border-white/10 p-4 space-y-3">
+        {/* Tarjeta del perfil activo */}
+        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-3 backdrop-blur-sm">
+          {/* Avatar cuadrado con degradado estilo perfil Netflix */}
+          <div className="relative shrink-0">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 text-sm font-extrabold text-white shadow-md">
+              {initials}
+            </div>
+            {/* Puntito verde de sesión activa */}
+            <span
+              title="Sesión activa"
+              className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#0d2544] bg-emerald-400"
+            />
+          </div>
+
+          {/* Nombre, rol y correo */}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-bold text-white">
+              {displayName}
+            </p>
+            <span className="inline-flex items-center gap-1 rounded-md bg-amber-400/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">
+              ★ {roleName}
+            </span>
+            <p className="mt-0.5 truncate text-[11px] text-slate-400">
+              {email}
+            </p>
+          </div>
+        </div>
+
+        {/* Botón de Cerrar sesión con confirmación rápida */}
+        {!confirmLogout ? (
+          <button
+            type="button"
+            onClick={() => setConfirmLogout(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-rose-400/40 hover:bg-rose-500/15 hover:text-rose-200"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+            <span>Cerrar sesión</span>
+          </button>
+        ) : (
+          <div className="rounded-xl border border-rose-400/30 bg-rose-950/40 p-2.5 text-center">
+            <p className="mb-2 text-xs font-medium text-rose-200">
+              ¿Salir del panel operativo?
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmLogout(false)}
+                className="flex-1 rounded-lg bg-white/10 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-white/20"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex-1 rounded-lg bg-rose-600 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-500"
+              >
+                Sí, salir
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   );

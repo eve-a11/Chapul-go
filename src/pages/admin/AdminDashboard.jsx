@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import AdminLayout from "../../components/templates/AdminLayout";
 import StatCard from "../../components/molecules/StatCard";
 import { getDashboardSummary } from "../../services/dashboardService";
@@ -6,6 +7,8 @@ import VehiculosAdmin from "./VehiculosAdmin";
 import EmpleadosAdmin from "./EmpleadosAdmin";
 import RutasAdmin from "./RutasAdmin";
 import HorariosAdmin from "./HorariosAdmin";
+import ObjetosPerdidosAdmin from "./ObjetosPerdidosAdmin";
+import ReportesAdmin from "./ReportesAdmin";
 
 function ProgressRow({ label, percentage, detail, colorClass = "bg-[#123254]" }) {
   return (
@@ -28,7 +31,12 @@ function ProgressRow({ label, percentage, detail, colorClass = "bg-[#123254]" })
 }
 
 export default function AdminDashboard() {
-  const [activeMenu, setActiveMenu] = useState("dashboard");
+  const { section } = useParams();
+  const navigate = useNavigate();
+
+  // Si no hay subruta (/admin), el módulo activo es "dashboard"
+  const activeMenu = section || "dashboard";
+
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState("--:--");
   const [summary, setSummary] = useState({
@@ -54,6 +62,16 @@ export default function AdminDashboard() {
     recentObjects: [],
   });
 
+  // Navega cambiando la URL (SIN replace) para que la flecha "Atrás" regrese a /admin
+  const goToSection = (target) => {
+    const id = typeof target === "string" ? target : target?.id;
+    if (!id || id === "dashboard") {
+      navigate("/admin");
+    } else {
+      navigate(`/admin/${id}`);
+    }
+  };
+
   useEffect(() => {
     const loadSummary = async () => {
       setIsLoading(true);
@@ -69,29 +87,30 @@ export default function AdminDashboard() {
       } finally {
         setIsLoading(false);
       }
-      
     };
-    
+
     if (activeMenu === "dashboard") {
       loadSummary();
     }
   }, [activeMenu]);
-  
-
-  const handleMenuChange = (item) => {
-    setActiveMenu(item.id);
-  };
 
   return (
-    <AdminLayout activeItem={activeMenu} onSelectMenu={(item) => setActiveMenu(item.id)}>
+    <AdminLayout activeItem={activeMenu} onSelectMenu={goToSection}>
       {activeMenu === "vehiculos" ? (
         <VehiculosAdmin />
-      ) : activeMenu === "empleados" ? (
+      ) : activeMenu === "empleados" || activeMenu === "choferes" ? (
         <EmpleadosAdmin />
       ) : activeMenu === "rutas" ? (
-          <RutasAdmin />
+        <RutasAdmin />
       ) : activeMenu === "horarios" ? (
-          <HorariosAdmin />
+        <HorariosAdmin />
+      ) : activeMenu === "objetos" ||
+        activeMenu === "objetos-perdidos" ||
+        activeMenu === "cosas-per" ||
+        activeMenu === "perdidos" ? (
+        <ObjetosPerdidosAdmin />
+      ) : activeMenu === "reportes" ? (
+        <ReportesAdmin />
       ) : activeMenu !== "dashboard" ? (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#E8F1FA] text-[#123254] text-xs font-semibold uppercase mb-2">
@@ -105,7 +124,7 @@ export default function AdminDashboard() {
           </p>
           <button
             type="button"
-            onClick={() => setActiveMenu("dashboard")}
+            onClick={() => goToSection("dashboard")}
             className="px-4 py-2 rounded-lg bg-[#123254] text-white text-xs font-semibold hover:bg-[#1a4573] transition"
           >
             ← Volver al Panel de control
@@ -129,21 +148,21 @@ export default function AdminDashboard() {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() => setActiveMenu("rutas")}
+                onClick={() => goToSection("rutas")}
                 className="px-3 py-1.5 rounded-lg bg-[#123254] hover:bg-[#1a4573] text-white text-xs font-semibold shadow-sm transition"
               >
                 + Gestionar Rutas
               </button>
               <button
                 type="button"
-                onClick={() => setActiveMenu("vehiculos")}
+                onClick={() => goToSection("vehiculos")}
                 className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-[#123254] border border-slate-200 text-xs font-semibold transition"
               >
                 + Registrar Unidad
               </button>
               <button
                 type="button"
-                onClick={() => setActiveMenu("choferes")}
+                onClick={() => goToSection("empleados")}
                 className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-[#123254] border border-slate-200 text-xs font-semibold transition"
               >
                 + Nuevo Empleado
@@ -275,7 +294,7 @@ export default function AdminDashboard() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setActiveMenu("objetos")}
+                      onClick={() => goToSection("objetos")}
                       className="text-xs font-semibold text-[#123254] hover:underline shrink-0"
                     >
                       Ver →
@@ -296,7 +315,7 @@ export default function AdminDashboard() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setActiveMenu("vehiculos")}
+                      onClick={() => goToSection("vehiculos")}
                       className="text-xs font-semibold text-[#123254] hover:underline shrink-0"
                     >
                       Ver →
@@ -317,7 +336,7 @@ export default function AdminDashboard() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setActiveMenu("reportes")}
+                      onClick={() => goToSection("reportes")}
                       className="text-xs font-semibold text-[#123254] hover:underline shrink-0"
                     >
                       Ver →
@@ -341,7 +360,7 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setActiveMenu("vehiculos")}
+                    onClick={() => goToSection("vehiculos")}
                     className="text-xs font-semibold text-[#123254] hover:underline"
                   >
                     Gestionar →
@@ -355,7 +374,7 @@ export default function AdminDashboard() {
                     </p>
                     <button
                       type="button"
-                      onClick={() => setActiveMenu("vehiculos")}
+                      onClick={() => goToSection("vehiculos")}
                       className="px-3 py-1.5 rounded-lg bg-[#123254] text-white text-xs font-semibold hover:bg-[#1a4573] transition"
                     >
                       + Registrar primer vehículo
@@ -416,7 +435,7 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setActiveMenu("objetos")}
+                    onClick={() => goToSection("objetos")}
                     className="text-xs font-semibold text-[#123254] hover:underline"
                   >
                     Gestionar →
@@ -430,7 +449,7 @@ export default function AdminDashboard() {
                     </p>
                     <button
                       type="button"
-                      onClick={() => setActiveMenu("objetos")}
+                      onClick={() => goToSection("objetos")}
                       className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[#123254] text-xs font-semibold hover:bg-slate-100 transition"
                     >
                       + Registrar reporte

@@ -1,24 +1,39 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PublicHome from "./pages/public/PublicHome";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute, { PublicRoute } from "./components/ProtectedRoute";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Rutas Públicas */}
-        <Route path="/" element={<Login />} />
+        {/* Rutas Públicas (PublicRoute impide volver al login con la flecha Atrás si ya iniciaste sesión) */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
         <Route path="/public" element={<PublicHome />} />
 
-        {/* Rutas Privadas solo para Administradores */}
-        <Route element={<ProtectedRoute allowedRoles={["admin", "superadmin"]} />}>
-          <Route path="/admin" element={<AdminDashboard />} />
+        {/* Rutas Privadas: permite entrar a /admin y a cualquier apartado (/admin/vehiculos, /admin/empleados, etc.) */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin/:section?" element={<AdminDashboard />} />
         </Route>
 
         {/* Ruta por defecto para URLs no encontradas */}
-        <Route path="*" element={<Login />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

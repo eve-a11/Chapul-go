@@ -1,21 +1,24 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { isAdminSession, clearAuthSession } from "../utils/authSession";
 
-export default function ProtectedRoute({ allowedRoles }) {
-  const token = localStorage.getItem("token");
-  const storedUser = localStorage.getItem("user");
+export function ProtectedRoute({ children }) {
+  const location = useLocation();
 
-  if (!token || !storedUser) {
-    return <Navigate to="/" replace />;
+  if (!isAdminSession()) {
+    clearAuthSession();
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  const user = JSON.parse(storedUser);
-  const userRole = user.finalRole || (user.role?.name || user.role || "user").toString().toLowerCase();
-
-  const hasPermission = allowedRoles.some((role) => userRole.includes(role.toLowerCase()));
-
-  if (!hasPermission) {
-    return <Navigate to="/public" replace />;
-  }
-
-  return <Outlet />;
+  return children ? children : <Outlet />;
 }
+
+export function PublicRoute({ children }) {
+  // Si ya hay sesión activa y presionan la flecha "Atrás" hacia el login, los devuelve al panel
+  if (isAdminSession()) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  return children ? children : <Outlet />;
+}
+
+export default ProtectedRoute;
