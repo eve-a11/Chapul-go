@@ -709,34 +709,143 @@
   color: #ffffff;
 }
 
-/* --- ASEGURA QUE EL CHATBOT QUEDE VISIBLE ARRIBA EN LA ESQUINA --- */
-[id*="vdk"],
-[class*="vdk-edge"] {
-  z-index: 9999 !important;
-}
-
 /* --- RESPONSIVE --- */
 @media (max-width: 820px) {
+  .cg-navbar-inner {
+    width: 100%;
+    height: auto;
+    min-height: 60px;
+    padding: 8px 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .cg-brand {
+    font-size: 1.05rem;
+  }
+
+  .cg-nav-links {
+    width: 100%;
+    justify-content: space-between;
+    gap: 2px;
+    order: 3;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 6px;
+  }
+
+  .cg-nav-item {
+    flex: 1;
+    padding: 6px 4px;
+    font-size: 10px;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .cg-nav-item span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .cg-profile-wrapper {
+    position: absolute;
+    right: 12px;
+    top: 10px;
+    margin-left: 0;
+  }
+
+  .cg-profile-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .cg-container,
+  .cg-map-section,
+  .cg-about-section,
+  .cg-footer-inner {
+    width: 100%;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
   .cg-hero-card {
     flex-direction: column;
     align-items: flex-start;
-    padding: 30px 24px;
+    padding: 26px 20px;
+    min-height: auto;
+  }
+
+  .cg-hero-mini-cards {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .cg-mini-card {
+    width: 100%;
+    padding: 12px;
   }
 
   .cg-hero-right {
     width: 100%;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .cg-hero-location-pill {
+    align-self: flex-start;
+  }
+
+  .cg-search-route-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cg-schedules-card {
+    padding: 12px 14px;
+  }
+
+  .cg-schedules-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
   }
 
   .cg-schedule-row {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+    padding: 12px 4px;
+  }
+
+  .cg-schedule-route {
+    grid-column: 1 / -1;
+  }
+
+  .cg-schedule-details-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+    background: #f1f5f9;
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  .cg-embedded-map-box .ruta-viewport {
+    height: auto;
+    min-height: 520px;
   }
 
   .cg-about-section {
     grid-template-columns: 1fr;
+    gap: 22px;
+    margin-top: 32px;
+  }
+
+  .cg-about-photo-card img {
+    height: 210px;
   }
 }
 
