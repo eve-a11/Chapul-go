@@ -1,8 +1,7 @@
-import axios from "axios";
-import { getStoredToken, clearAuthSession } from "../utils/authSession";
-
 const api = axios.create({
-  baseURL: "https://site--api-v1--f5j2myk6jf8y.code.run/api/v1",
+  baseURL: import.meta.env.DEV
+    ? "https://site--api-v1--f5j2myk6jf8y.code.run/api/v1"
+    : "/api/v1",
   headers: {
     "Content-Type": "application/json",
   },
